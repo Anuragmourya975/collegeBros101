@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const formDataSchema = new mongoose.Schema({
   resourceName: {
@@ -21,8 +21,9 @@ const formDataSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  upvotes: { type: Number, default: 0 },
 });
 
-const FormData = mongoose.model('FormData', formDataSchema);
+const FormData = mongoose.model("FormData", formDataSchema);
 
 module.exports = FormData;

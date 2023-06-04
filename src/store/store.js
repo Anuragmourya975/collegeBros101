@@ -5,6 +5,7 @@ const initialState = {
   isModalOpen: false,
   formData: {},
   token: "",
+  searchQuery: "",
 };
 
 function reducer(state = initialState, action) {
@@ -29,6 +30,12 @@ function reducer(state = initialState, action) {
         ...state,
         formData: action.value, // Update the formData with the saved form data
       };
+    case "SET_SEARCH_QUERY":
+      return {
+        ...state,
+        searchQuery: action.value,
+      };
+
     default:
       return state;
   }

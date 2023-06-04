@@ -7,6 +7,7 @@ import Card from "./Card";
 
 function Navbar() {
   const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
 
   // const [isModalOpen, setIsModalOpen] = useState(false);
   const isModalOpen = useSelector((state) => state.isModalOpen);
@@ -17,6 +18,13 @@ function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     window.location.href = "/";
+  };
+  const handleSearchQueryChange = (event) => {
+    dispatch({ type: "SET_SEARCH_QUERY", value: event.target.value });
+    setSearchQuery(event.target.value);
+  };
+  const handleSearch = () => {
+    dispatch({ type: "SET_SEARCH_QUERY", value: searchQuery });
   };
   return (
     <div>
@@ -65,29 +73,37 @@ function Navbar() {
                   type="button"
                 >
                   <div className="block flex-grow flex-shrink overflow-hidden">
-                    Start your search
+                    <input
+                      className="border-none focus:outline-none w-full text-gray-700"
+                      type="text"
+                      value={searchQuery}
+                      onChange={handleSearchQueryChange}
+                      placeholder="Search"
+                    />
                   </div>
                   <div className="flex items-center justify-center relative  h-8 w-8 rounded-full">
-                    <svg
-                      viewBox="0 0 32 32"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      role="presentation"
-                      focusable="false"
-                      style={{
-                        display: "block",
-                        fill: "none",
-                        height: 12,
-                        width: 12,
-                        stroke: "currentcolor",
-                        strokeWidth: "5.33333",
-                        overflow: "visible",
-                      }}
-                    >
-                      <g fill="none">
-                        <path d="m13 24c6.0751322 0 11-4.9248678 11-11 0-6.07513225-4.9248678-11-11-11-6.07513225 0-11 4.92486775-11 11 0 6.0751322 4.92486775 11 11 11zm8-3 9 9" />
-                      </g>
-                    </svg>
+                    <button onClick={handleSearch}>
+                      <svg
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        role="presentation"
+                        focusable="false"
+                        style={{
+                          display: "block",
+                          fill: "none",
+                          height: 12,
+                          width: 12,
+                          stroke: "currentcolor",
+                          strokeWidth: "5.33333",
+                          overflow: "visible",
+                        }}
+                      >
+                        <g fill="none">
+                          <path d="m13 24c6.0751322 0 11-4.9248678 11-11 0-6.07513225-4.9248678-11-11-11-6.07513225 0-11 4.92486775-11 11 0 6.0751322 4.92486775 11 11 11zm8-3 9 9" />
+                        </g>
+                      </svg>
+                    </button>
                   </div>
                 </button>
               </div>
@@ -115,7 +131,7 @@ function Navbar() {
                   >
                     <div className="flex items-center h-5">
                       <div className="_xpkakx">
-                        <BiLogOutCircle className="text-3xl"/>
+                        <BiLogOutCircle className="text-3xl" />
                       </div>
                     </div>
                   </button>

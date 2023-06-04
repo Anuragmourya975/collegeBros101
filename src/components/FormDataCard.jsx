@@ -1,6 +1,30 @@
-import React from "react";
-
+import React, { useState } from "react";
+import axios from "axios";
 const FormDataCard = ({ formData }) => {
+  const [upvotes, setUpvotes] = useState(0);
+  
+
+  const handleUpvote = async () => {
+    // Update the number of upvotes
+    const newUpvotes = upvotes + 1;
+    setUpvotes(newUpvotes);
+  
+    try {
+      // Make a POST request to the server to update the upvotes count
+      const response = await axios.post(`http://localhost:5000/api/formdata/upvote/${formData._id}`);
+        console.log("form data id",formData._id);
+      if (response.status !== 200) {
+        throw new Error("Upvote failed");
+      }
+  
+      // TODO: Handle the response or perform any additional actions
+    } catch (error) {
+      console.error("Error upvoting card:", error);
+      // TODO: Handle the error, e.g., display an error message to the user
+    }
+  };
+  
+
   const handlePreview = () => {
     if (formData.resourceMedia) {
       window.open(
@@ -9,6 +33,7 @@ const FormDataCard = ({ formData }) => {
       );
     }
   };
+
   const handleDownload = () => {
     if (formData.resourceMedia) {
       const downloadUrl = `http://localhost:5000/uploads/${formData.resourceMedia}`;
@@ -49,10 +74,7 @@ const FormDataCard = ({ formData }) => {
         >
           Preview
         </button>
-        <a
-          href={`/server/uploads/${formData.resourceMedia}`}
-          download
-        >
+        <a href={`/server/uploads/${formData.resourceMedia}`} download>
           <button
             type="button"
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
@@ -60,6 +82,12 @@ const FormDataCard = ({ formData }) => {
             Download
           </button>
         </a>
+      </div>
+      <div className="mt-4">
+        <button onClick={handleUpvote} className="text-blue-500">
+          Upvote
+        </button>
+        <span className="ml-2">{formData.upvotes} Upvotes</span>
       </div>
     </div>
   );

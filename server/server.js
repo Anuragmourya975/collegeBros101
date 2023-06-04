@@ -124,15 +124,51 @@ mongoose.connect('mongodb://127.0.0.1:27017/collegeBros', {
     }
   });
 
-app.get('/api/formdata', async (req, res) => {
-  try {
-    // Fetch all form data from the database
-    const allFormData = await FormDataSchema.find();
-
-    res.status(200).json(allFormData);
-  } catch (error) {
-    console.error('Error fetching form data:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
+  app.get("/api/formdata", async (req, res) => {
+    try {
+      const searchQuery = req.query.search || "";
+      let formData;
+  
+      if (searchQuery.length > 0) {
+        formData = await FormDataSchema.find({
+          $or: [
+            { resourceName: { $regex: searchQuery, $options: "i" } },
+            { description: { $regex: searchQuery, $options: "i" } },
+            { publisher: { $regex: searchQuery, $options: "i" } },
+          ],
+        });
+      } else {
+        formData = await FormDataSchema.find();
+      }
+  
+      res.status(200).json(formData);
+    } catch (error) {
+      console.error("Error fetching form data:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.post("/api/formdata/upvote/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // Find the card by its ID
+      const formData = await FormDataSchema.findById(id);
+  
+      if (!formData) {
+        return res.status(404).json({ message: "Card not found" });
+      }
+  
+      // Increment the upvotes count
+      formData.upvotes = (formData.upvotes || 0) + 1;
+  
+      // Save the updated card
+      await formData.save();
+  
+      res.status(200).json({ message: "Upvote successful", formData });
+    } catch (error) {
+      console.error("Error upvoting card:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
