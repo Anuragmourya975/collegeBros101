@@ -9,9 +9,14 @@ function Card() {
   const [allFormData, setAllFormData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredFormData, setFilteredFormData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const search = useSelector((state) => state.searchQuery);
-    console.log("this is the search",search);
+  console.log("this is the search", search);
+  const upvote = useSelector((state) => state.upvotes);
+  console.log("this is the upvote", upvote);
+
   useEffect(() => {
     const fetchAllFormData = async () => {
       try {
@@ -24,7 +29,7 @@ function Card() {
     };
 
     fetchAllFormData();
-  }, []);
+  }, [upvote]);
 
   useEffect(() => {
     const searchFormData = async () => {
@@ -53,6 +58,7 @@ function Card() {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to the first page
   };
 
   const breakpointColumnsObj = {
@@ -61,6 +67,11 @@ function Card() {
     700: 2,
     500: 1,
   };
+  const sortedFormData = filteredFormData.sort((a, b) => b.upvotes - a.upvotes); // Render the FormDataCard components based on the sorted
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedFormData.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="container mx-2 my-2">
@@ -70,20 +81,41 @@ function Card() {
         placeholder="Search"
         value={searchQuery}
         onChange={handleSearchChange}
-        style={{display:"none"}}
-/>
+        style={{ display: "none" }}
+      />
 
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-        {filteredFormData.map((formData) => (
+        {currentItems.map((formData) => (
           <div key={formData._id} className="my-masonry-grid_item">
             <FormDataCard formData={formData} />
           </div>
         ))}
       </Masonry>
+
+      <div className="pagination flex justify-center mt-4">
+  <button
+    className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 hover:text-gray-700 transition duration-300 ease-in-out disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage((prevPage) => prevPage - 1)}
+  >
+    Previous
+  </button>
+  <span className="px-4 py-2 text-gray-600">
+    Page {currentPage}
+  </span>
+  <button
+    className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 hover:text-gray-700 transition duration-300 ease-in-out disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+    disabled={indexOfLastItem >= sortedFormData.length}
+    onClick={() => setCurrentPage((prevPage) => prevPage + 1)}
+  >
+    Next
+  </button>
+</div>
+
     </div>
   );
 }

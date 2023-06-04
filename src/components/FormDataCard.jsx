@@ -1,29 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import socketIOClient from 'socket.io-client';
+
 const FormDataCard = ({ formData }) => {
-  const [upvotes, setUpvotes] = useState(0);
-  
+  const [upvoted, setUpvoted] = useState(false);
+  const [upvotes, setUpvotes] = useState(formData.upvotes || 0);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Check if the user has already upvoted this card
+    const upvotedCards = JSON.parse(localStorage.getItem("upvotedCards")) || [];
+    if (upvotedCards.includes(formData._id)) {
+      setUpvoted(true);
+    }
+  }, [formData._id]);
+
+  const upvoteForm = () => {
+    dispatch({ type: "UPVOTE", value: formData.upvotes + 1 });
+  };
 
   const handleUpvote = async () => {
-    // Update the number of upvotes
-    const newUpvotes = upvotes + 1;
-    setUpvotes(newUpvotes);
-  
     try {
+      // Check if the user has already upvoted this card
+      const upvotedCards = JSON.parse(localStorage.getItem("upvotedCards")) || [];
+      if (upvotedCards.includes(formData._id)) {
+        return; // User has already upvoted this card
+      }
+
       // Make a POST request to the server to update the upvotes count
-      const response = await axios.post(`http://localhost:5000/api/formdata/upvote/${formData._id}`);
-        console.log("form data id",formData._id);
-      if (response.status !== 200) {
+      const response = await axios.post(
+        `http://localhost:5000/api/formdata/upvote/${formData._id}`
+      );
+
+      if (response.status === 200) {
+        // Update the upvotes count in the state and mark the card as upvoted
+        upvoteForm();
+        setUpvotes(upvotes + 1);
+        setUpvoted(true);
+
+        // Store the upvoted card's ID in the user's data
+        upvotedCards.push(formData._id);
+        localStorage.setItem("upvotedCards", JSON.stringify(upvotedCards));
+      } else {
         throw new Error("Upvote failed");
       }
-  
+
       // TODO: Handle the response or perform any additional actions
     } catch (error) {
       console.error("Error upvoting card:", error);
       // TODO: Handle the error, e.g., display an error message to the user
     }
   };
-  
 
   const handlePreview = () => {
     if (formData.resourceMedia) {
@@ -84,10 +112,14 @@ const FormDataCard = ({ formData }) => {
         </a>
       </div>
       <div className="mt-4">
-        <button onClick={handleUpvote} className="text-blue-500">
+        <button
+          onClick={handleUpvote}
+          className={`text-blue-500 ${upvoted ? "disabled" : ""}`}
+          disabled={upvoted}
+        >
           Upvote
         </button>
-        <span className="ml-2">{formData.upvotes} Upvotes</span>
+        <span className="ml-2">{upvotes} Upvotes</span>
       </div>
     </div>
   );

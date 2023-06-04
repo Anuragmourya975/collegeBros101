@@ -6,6 +6,7 @@ const initialState = {
   formData: {},
   token: "",
   searchQuery: "",
+  upvotes: 0,
 };
 
 function reducer(state = initialState, action) {
@@ -34,6 +35,11 @@ function reducer(state = initialState, action) {
       return {
         ...state,
         searchQuery: action.value,
+      };
+    case "UPVOTE":
+      return {
+        ...state,
+        upvotes: action.value,
       };
 
     default:

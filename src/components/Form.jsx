@@ -5,7 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 export default function Form() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector((state) => state.isModalOpen);
-
+  const upvote = useSelector((state) => state.upvotes);
+  const upvotForm = () => {
+    dispatch({ type: "UPVOTE", value: formData.upvotes + 1 });
+  };
   const [formData, setFormData] = useState({
     resourceName: "",
     description: "",
@@ -26,7 +29,7 @@ export default function Form() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    upvotForm();
     // Perform any necessary validation on the form data
     // ...
 
